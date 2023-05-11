@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="/Users/emmaciccotosto/Desktop/Final SQL: Python Project/Project DB.db" readonly="0" foreign_keys="" case_sensitive_like="" temp_store="" wal_autocheckpoint="" synchronous=""/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="3410"/><column_width id="4" width="0"/></tab_structure><tab_browse><current_table name="0,0:"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 5">CREATE VIEW covid19 AS
+SELECT *
+FROM VAERSVAX
+WHERE VAX_TYPE = 'COVID19'</sql><sql name="Final Project">-- 1	How many people who got vaccinated for covid ?
+SELECT  count (*)  as 'Vaccinated for Covid'
+FROM covid19;
+
+
+-- 2. What is the most popular vaccine? Should I create a view here? 
+
+SELECT VAX_MANU as [Vaccine_Brand] , COUNT(*) AS [Num_Vaccinations]
+FROM covid19
+GROUP BY VAX_MANU
+ORDER BY num_vaccinations DESC
+LIMIT 5;
+
+-- use vax  data and see if any of the patient id's overlap and then determine how many doses each patient has recieved and 
+	--which type and then inner join this with the vax symptoms and lab results and whether or not the dosage, or type of vaccine has an effect on if the patient had covid and how severe the sympotms were 
+ SELECT VAX_MANU, COUNT(*) AS num_positive_tests
+FROM covid19
+JOIN covid_tests ON c19.patient_id = ct.patient_id
+WHERE covid_tests.test_result = 'positive'
+GROUP BY vaccinations.vaccine_type;
+
+--3	Which vaccine has the least number of breakthrough cases of covid?
+Create VIEW breakthrough_cases as 
+SELECT count (*) as [Breakthrough Cases]
+From VAERSDATA 
+WHERE SYMPTOM_TEXT like  '%breakthrough case%' 
+
+CREATE View Vaccines_Breakthrough_Cases as
+Select c.VAX_MANU as [Vaccine], count (*) as [Number_of_Breakthrough_Cases]
+From covid19 as c inner join VAERSDATA as v on c.VAERS_ID =v.VAERS_ID
+WHERE v.SYMPTOM_TEXT like  '%breakthrough case%' 
+group by c.VAX_MANU
+order by c.VAX_MANU ASC
+
+
+
+ --4	What were the top 10 most popular symptoms for people who were vaccinated?
+CREATE VIEW Symptoms as
+SELECT v.VAX_TYPE, s.SYMPTOM1 ||' ' || s.SYMPTOM2 || ' ' || s.SYMPTOM3 || ' ' || s.SYMPTOM4 || ' ' || s.SYMPTOM5 as [Symptoms]
+FROM VAERSSYMPTOMS as s INNER JOIN VAERSVAX as v ON s.VAERS_ID = v.VAERS_ID
+WHERE Symptoms IS NOT NULL; 
+
+
+--5	What were the varying doses of the vaccines adminstered in 2022? 
+
+SELECT VAX_DOSE_SERIES as [Vaccination Dose Series], COUNT(*) AS [Patients  Vaccinations]
+FROM covid19 
+GROUP BY VAX_DOSE_SERIES
+
+
+
+</sql><current_tab id="1"/></tab_sql></sqlb_project>
